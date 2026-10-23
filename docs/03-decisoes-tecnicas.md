@@ -18,6 +18,20 @@ A stack usa Java, uma das linguagens preferidas no guia, com sockets TCP puros, 
 | Logs | SLF4J + Logback, mais a tabela `ServerEvents` | Eventos do servidor em arquivo e no banco |
 | Testes | JUnit 5 | Padrão para testes em Java |
 | Versionamento | Git + GitHub, uma branch e um PR por feature | Exigido no guia; ver [git-workflow.md](../guidelines/git-workflow.md) |
+| Build reproduzível | Maven Wrapper (`./mvnw`) | Quem clona não precisa instalar o Maven |
+| Distribuição | `maven-shade-plugin`: `velha-server.jar` e `velha-client.jar` | Um `java -jar` por componente na demo; o jar do cliente leva o JavaFX do sistema em que foi gerado |
+| Cliente de console | `ConsoleClient` e `LoadTestMain` no módulo `client` | Testes manuais, depuração do protocolo e teste de carga entre máquinas |
+
+## Decisões tomadas durante a implementação
+
+- **Mensagens novas:** `REGISTER_OK`, `LOGOUT`, `INVITE_SENT`, `INVITE_RESULT`, `OPPONENT_DISCONNECTED`, `OPPONENT_RECONNECTED` e `LEADERBOARD_DATA` foram acrescentadas para que todo pedido tenha resposta e para que os dois lados saibam de convites recusados, expirados e de quedas. Ver [05-protocolo.md](05-protocolo.md).
+- **Token de sessão:** vale só para a conexão em que foi emitido. Se a conexão cai **com partida em andamento**, o token passa a valer para `RECONNECT` por 60 s; sem partida, é descartado na hora. `LOGOUT` e um novo login invalidam o token anterior.
+- **Novo login retoma a partida:** se o jogador fecha o app e entra de novo dentro dos 60 s, a partida volta como em um `RECONNECT`. Um segundo login do mesmo usuário derruba a sessão antiga (`SESSION_REPLACED`).
+- **Queda dos dois jogadores:** se ninguém voltar em 60 s, a partida termina sem vencedor (`TIMEOUT`, `WinnerId` nulo).
+- **Verificação do certificado:** o cliente confia apenas no certificado do servidor, carregado num truststore próprio (fixação de certificado). Não há verificação de nome de host, para que a demo funcione por IP; mesmo assim, um MitM com outro certificado é recusado no handshake.
+- **Heartbeat:** o cliente envia `PING` a cada 10 s; o servidor responde `PONG`. Os dois lados consideram a conexão perdida após 30 s sem receber nada.
+- **Modo `--sem-tls`:** existe só para a captura de comparação no Wireshark, porque o JSSE não exporta chaves de sessão.
+- **Bot, painel admin e nuvem:** não implementados nesta versão (opcionais "se sobrar tempo").
 
 ## Por que não MQTT
 
