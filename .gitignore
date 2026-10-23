@@ -1,0 +1,24 @@
+# Build
+target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Dados e logs locais
+*.db
+*.db-shm
+*.db-wal
+logs/
+
+# Segredos: keystore, truststore e certificados
+certs/
+*.jks
+*.p12
+*.cer
+
+# Capturas grandes que não são evidência (evidências ficam em docs/evidencias/)
+*.pcapng
+!docs/evidencias/*.pcapng
