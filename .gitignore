@@ -25,3 +25,7 @@ certs/
 
 # Arquivos de entrega (docx/pptx) ficam só locais
 entrega/
+
+# Prompts de trabalho (ficam só locais)
+docs/PROMPT*.md
+docs/evidencias/PROMPTS*.md

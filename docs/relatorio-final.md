@@ -6,7 +6,7 @@
 **Repositório:** [LINK DO GITHUB]
 **Data:** [DATA DA ENTREGA]
 
-> **Como ler os marcadores deste rascunho.** Cada `📷 FIGURA` indica um print que ainda falta, com o nome exato do arquivo em `docs/evidencias/`. O passo a passo para gerar cada um com o Claude Desktop está em [evidencias/PROMPTS-CLAUDE-DESKTOP.md](evidencias/PROMPTS-CLAUDE-DESKTOP.md). Quando o arquivo existir, a imagem aparece sozinha; depois apague esta nota e as linhas `📷`.
+> **Como ler os marcadores deste rascunho.** Cada `📷 FIGURA` indica um print que ainda falta, com o nome exato do arquivo em `docs/evidencias/`. Quando o arquivo existir, a imagem aparece sozinha; depois apague esta nota e as linhas `📷`.
 
 ---
 
