@@ -20,20 +20,21 @@ Jogo da Velha online para 2 jogadores, feito para o Capstone de Redes. O servido
 
 Gera `server/target/velha-server.jar` e `client/target/velha-client.jar`.
 
-### 2. Gerar os certificados (uma vez)
+### 2. Certificado TLS (automático)
 
-```bash
-scripts/gerar-certificados.sh                 # servidor e clientes na mesma máquina
-scripts/gerar-certificados.sh 192.168.0.10    # acrescenta o IP do servidor na rede
-```
+Na primeira vez que o servidor sobe sem `certs/server-keystore.p12`, ele mesmo gera o certificado autoassinado (keytool do JDK) e cria:
 
-Isso cria `certs/server-keystore.p12` (fica no servidor) e `certs/client-truststore.p12` (copie para cada máquina cliente, no mesmo caminho). As senhas vêm de `VELHA_KEYSTORE_PASSWORD` e `VELHA_TRUSTSTORE_PASSWORD` (padrão `changeit`). A pasta `certs/` está no `.gitignore`.
+- `certs/server-keystore.p12`: chave privada + certificado, fica só no servidor;
+- `certs/client-truststore.p12`: só o certificado público; copie para cada máquina cliente, no mesmo caminho;
+- `certs/server.cer`: o certificado público solto, para inspeção.
+
+O SAN inclui `localhost`, `127.0.0.1` e os IPv4 da máquina. Nas próximas subidas o mesmo certificado é reaproveitado; `--novo-certificado` força gerar outro (aí os clientes precisam do truststore novo). Para gerar sem subir o servidor, continua existindo `scripts/gerar-certificados.sh [ip-ou-host...]`. As senhas vêm de `VELHA_KEYSTORE_PASSWORD` e `VELHA_TRUSTSTORE_PASSWORD` (padrão `changeit`). A pasta `certs/` está no `.gitignore`.
 
 ### 3. Subir o servidor (porta 5555)
 
 ```bash
 java -jar server/target/velha-server.jar
-# opções: --port 5555 --db velha.db --keystore certs/server-keystore.p12 --sem-tls
+# opções: --port 5555 --db velha.db --keystore certs/server-keystore.p12 --novo-certificado --sem-tls
 ```
 
 ### 4. Abrir dois clientes

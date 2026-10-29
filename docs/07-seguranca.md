@@ -23,4 +23,4 @@ O enunciado cita "SHA-64", que não existe. O projeto usa SHA-256 dentro do PBKD
 ## Segredos
 
 - Keystore, truststore e senhas ficam fora do Git (`.gitignore`).
-- O README explica como gerar o certificado com `keytool`.
+- O servidor gera o certificado autoassinado sozinho na primeira subida (`CertGenerator`, via `keytool`); o README explica como distribuir o truststore e como gerar manualmente.

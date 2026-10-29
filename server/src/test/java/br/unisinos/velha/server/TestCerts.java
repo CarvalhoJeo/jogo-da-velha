@@ -3,15 +3,14 @@ package br.unisinos.velha.server;
 import br.unisinos.velha.common.tls.TlsConfig;
 
 import javax.net.ssl.SSLContext;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 /**
  * Gera, uma vez por execução dos testes, um keystore de servidor e um
- * truststore de cliente com o keytool do próprio JDK, do mesmo jeito que
- * scripts/gerar-certificados.sh.
+ * truststore de cliente com o {@link CertGenerator}, o mesmo que o servidor
+ * usa ao subir sem certificado.
  */
 public final class TestCerts {
 
@@ -24,32 +23,16 @@ public final class TestCerts {
     public static synchronized Path dir() throws Exception {
         if (dir == null) {
             dir = Files.createTempDirectory("velha-certs");
-            generate(dir, "server", "server-keystore.p12", "client-truststore.p12");
+            generate(dir, CertGenerator.ALIAS, "server-keystore.p12");
             // segundo par, que o cliente NÃO confia: simula um atacante MitM
-            generate(dir, "mitm", "mitm-keystore.p12", "mitm-truststore.p12");
+            generate(dir, "mitm", "mitm-keystore.p12");
         }
         return dir;
     }
 
-    private static void generate(Path d, String alias, String keystore, String truststore) throws Exception {
-        String keytool = Path.of(System.getProperty("java.home"), "bin", "keytool").toString();
-        run(List.of(keytool, "-genkeypair", "-alias", alias, "-keyalg", "EC", "-groupname", "secp256r1",
-                "-validity", "2", "-dname", "CN=localhost", "-ext", "SAN=dns:localhost,ip:127.0.0.1",
-                "-storetype", "PKCS12", "-keystore", d.resolve(keystore).toString(),
-                "-storepass", PASSWORD, "-keypass", PASSWORD), d);
-        Path cer = d.resolve(alias + ".cer");
-        run(List.of(keytool, "-exportcert", "-alias", alias, "-keystore", d.resolve(keystore).toString(),
-                "-storepass", PASSWORD, "-file", cer.toString()), d);
-        run(List.of(keytool, "-importcert", "-noprompt", "-alias", alias, "-file", cer.toString(),
-                "-storetype", "PKCS12", "-keystore", d.resolve(truststore).toString(), "-storepass", PASSWORD), d);
-    }
-
-    private static void run(List<String> cmd, Path d) throws IOException, InterruptedException {
-        Process p = new ProcessBuilder(cmd).directory(d.toFile()).redirectErrorStream(true).start();
-        String out = new String(p.getInputStream().readAllBytes());
-        if (p.waitFor() != 0) {
-            throw new IOException("keytool falhou: " + out);
-        }
+    private static void generate(Path d, String alias, String keystore) throws Exception {
+        CertGenerator.generate(d.resolve(keystore), PASSWORD.toCharArray(), PASSWORD.toCharArray(),
+                alias, "CN=localhost", 2, List.of());
     }
 
     public static SSLContext serverContext() throws Exception {
