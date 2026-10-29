@@ -22,3 +22,6 @@ certs/
 # Capturas grandes que não são evidência (evidências ficam em docs/evidencias/)
 *.pcapng
 !docs/evidencias/*.pcapng
+
+# Arquivos de entrega (docx/pptx) ficam só locais
+entrega/
