@@ -33,7 +33,7 @@ class ClientSettingsTest {
     void missingTruststoreGivesClearMessage() {
         ClientSettings s = ClientSettings.parse(List.of("--truststore", "nao-existe.p12"));
         Exception e = assertThrows(IllegalStateException.class, s::sslContext);
-        assertTrue(e.getMessage().contains("gerar-certificados"));
+        assertTrue(e.getMessage().contains("client-truststore.p12"));
     }
 
     @Test

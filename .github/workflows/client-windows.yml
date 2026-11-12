@@ -1,0 +1,32 @@
+name: Cliente Windows (.exe)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['client/**', 'common/**', '.github/workflows/client-windows.yml']
+
+jobs:
+  exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Jar do cliente (JavaFX para Windows)
+        run: ./mvnw -B -pl client -am -DskipTests package
+      - name: jpackage (pasta com JogoDaVelha.exe e Java embutido)
+        shell: bash
+        run: |
+          mkdir input && cp client/target/velha-client.jar input/
+          jpackage --type app-image --name JogoDaVelha --app-version 1.0 \
+            --input input --main-jar velha-client.jar \
+            --main-class br.unisinos.velha.client.ClientLauncher \
+            --dest dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: JogoDaVelha-windows
+          path: dist/

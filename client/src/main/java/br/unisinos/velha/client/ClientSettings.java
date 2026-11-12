@@ -15,7 +15,17 @@ import java.util.List;
  */
 public record ClientSettings(String host, int port, Path truststore, boolean tls, List<String> rest) {
 
-    public static final Path DEFAULT_TRUSTSTORE = Path.of("certs/client-truststore.p12");
+    public static final Path DEFAULT_TRUSTSTORE = defaultTruststore();
+
+    /** certs/ na pasta atual; no .exe gerado pelo jpackage, certs/ ao lado do executável. */
+    private static Path defaultTruststore() {
+        Path relative = Path.of("certs/client-truststore.p12");
+        String appPath = System.getProperty("jpackage.app-path");
+        if (appPath == null || Files.exists(relative)) {
+            return relative;
+        }
+        return Path.of(appPath).toAbsolutePath().getParent().resolve(relative);
+    }
 
     public static ClientSettings parse(List<String> args) {
         String host = "localhost";
@@ -47,7 +57,7 @@ public record ClientSettings(String host, int port, Path truststore, boolean tls
         }
         if (!Files.exists(truststore)) {
             throw new IllegalStateException("Truststore não encontrado: " + truststore.toAbsolutePath()
-                    + ". Gere com scripts/gerar-certificados.sh (ver README).");
+                    + ". Copie o certs/client-truststore.p12 gerado pelo servidor (ver README).");
         }
         String pw = System.getenv().getOrDefault("VELHA_TRUSTSTORE_PASSWORD", "changeit");
         return TlsConfig.clientContext(truststore, pw.toCharArray());
